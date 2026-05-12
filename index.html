@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:," />
+  <script src="libs/d3/d3.min.js"></script>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-tag">F21DV Group 10 · Victoria Road Crash Data 2012–2025</div>
+    <h1 class="hero-title">ROAD<br><span class="accent">SAFETY</span></h1>
+    <p class="hero-sub">
+      An interactive data story for law enforcement agencies; exploring crash
+      patterns, high-risk periods, and the human cost of road incidents across Victoria.
+    </p>
+  </header>
+
+  <section class="filters-bar" id="filters">
+    <div class="filters-inner">
+      <div class="filter-group">
+        <label class="filter-label">Year Range</label>
+        <div class="range-wrap">
+          <input type="range" id="yearMin" min="2012" max="2025" value="2012" class="slider" />
+          <input type="range" id="yearMax" min="2012" max="2025" value="2025" class="slider" />
+          <span id="yearDisplay" class="range-display">2012 – 2025</span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Day of Week</label>
+        <select id="filterDay" class="filter-select">
+          <option value="All">All Days</option>
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+          <option>Thursday</option><option>Friday</option>
+          <option>Saturday</option><option>Sunday</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Time of Day</label>
+        <div class="btn-group" id="filterTime">
+          <button class="time-btn active" data-val="All">All</button>
+          <button class="time-btn" data-val="Morning">Morning<br><small>6–12</small></button>
+          <button class="time-btn" data-val="Afternoon">Afternoon<br><small>12–18</small></button>
+          <button class="time-btn" data-val="Night">Night<br><small>18–6</small></button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Speed Zone (km/h)</label>
+        <select id="filterSpeed" class="filter-select">
+          <option value="All">All Zones</option>
+          <option>40</option><option>50</option><option>60</option>
+          <option>70</option><option>80</option><option>100</option><option>110</option>
+        </select>
+      </div>
+
+      <button id="resetBtn" class="reset-btn">⟳ Reset Filters</button>
+    </div>
+  </section>
+
+  <section class="story-section" id="section-overview">
+    <div class="section-label">01 / The Scale</div>
+    <h2 class="section-title">The Big Picture</h2>
+    <p class="section-prose">
+      From 2012 to 2025, Victoria recorded nearly 200,000 road crashes
+      taking a significant toll on families, communities, and emergency services.
+      Use the filters above to explore the data.
+    </p>
+    <div id="metric-cards" class="metric-grid"></div>
+  </section>
+
+  <section class="story-section" id="section-when">
+    <div class="section-label">02 / When</div>
+    <h2 class="section-title">Patterns in Time</h2>
+    <p class="section-prose">
+        <li>Friday has the highest crash count (30,262).</li>
+        <li>Nearly 5.1% of all crashes happen on Friday 3–6 PM.</li>
+        <li>Crash volume dropped noticeably in 2020–2021 (COVID lockdowns), then rebounded sharply.</li>
+        <li>Wednesday–Friday consistently peaks, while Sunday records the lowest crashes.</li>
+        <br>Click a bar to filter all other charts to that year. 
+    </p>
+    <div class="chart-row">
+      <div class="chart-card" id="chart-stacked-bar">
+        <div class="chart-title">Annual Crashes by Severity</div>
+        <div class="chart-subtitle">Click a year bar to cross-filter</div>
+        <svg id="svg-stacked-bar"></svg>
+        <div id="tooltip-bar" class="tooltip"></div>
+      </div>
+      <div class="chart-card" id="chart-heatmap">
+        <div class="chart-title">Crash Density: Hour × Day</div>
+        <div class="chart-subtitle">Hover a cell for details</div>
+        <svg id="svg-heatmap"></svg>
+        <div id="tooltip-heat" class="tooltip"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="story-section" id="section-speed">
+    <div class="section-label">03 / Speed</div>
+    <h2 class="section-title">Speed & Severity</h2>
+    <p class="section-prose">
+        <li>110 km/h zones carry more than 5.0% fatality rate which the highest of any speed zone.</li>
+        <li>100 km/h zones account for more fatalities despite lower crash volume than urban zones.</li>
+        <li>50 km/h urban zones have the highest crash volume but only about 1% fatality rate.</li>
+        <li>The relationship shows: higher speed = lower crashes but far deadlier outcomes.</li>
+    </p>
+    <br>Click a bubble to highlight that speed zone and hover over for details.
+    <div class="chart-card chart-wide" id="chart-scatter">
+      <div class="chart-title">Speed Zone vs. Fatality Rate</div>
+      <div class="chart-subtitle">Bubble size = total crashes </div>
+      <svg id="svg-scatter"></svg>
+      <div id="tooltip-scatter" class="tooltip"></div>
+    </div>
+  </section>
+
+  <section class="story-section" id="section-who">
+    <div class="section-label">04 / Who</div>
+    <h2 class="section-title">Demographics & Severity</h2>
+    <p class="section-prose">
+        <li>Young adults represent the largest group involved.</li>
+        <li>Elderly 70+ have the highest fatality rate at 2.2%, despite lower involvement numbers.</li>
+        <li>Of 447,599 persons involved fatalities were 0.77%, but each was preventable.</li>
+        <br>Click a donut segment to filter the funnel chart.  
+    </p>
+    <div class="chart-row">
+      <div class="chart-card" id="chart-donut">
+        <div class="chart-title">Crashes by Age Group</div>
+        <svg id="svg-donut"></svg>
+        <div id="tooltip-donut" class="tooltip"></div>
+      </div>
+      <div class="chart-card" id="chart-funnel">
+        <div class="chart-title">Severity Funnel</div>
+        <svg id="svg-funnel"></svg>
+        <div id="tooltip-funnel" class="tooltip"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="story-section" id="section-vehicles">
+    <div class="section-label">05 / Vehicles</div>
+    <h2 class="section-title">Vehicle Type Trends</h2>
+    <p class="section-prose">
+        <li>Passenger cars dominate in volume , but motorcycles are 3.2× more likely to result in fatalities per crash.</li>
+        <li>Heavy vehicles have the highest fatality rate at 5.22%, reflecting the severe impact of crashes involving large, powerful vehicles.</li>
+        <li>Bicycle involvement has grown since 2019, reflecting increased cycling post-COVID</li>
+        <br>Toggle different vehicle types using the legend, zoom for details and panning to explore the data. 
+    </p>
+    <div class="chart-card chart-wide" id="chart-line">
+      <div class="chart-title">Crash Volume by Vehicle Type Over Time</div>
+      <div class="chart-subtitle">Click legend items to show/hide series</div>
+      <svg id="svg-line"></svg>
+      <div id="tooltip-line" class="tooltip"></div>
+    </div>
+  </section>
+
+  <script src="scripts/main.js"></script>
+
+</body>
+</html>
